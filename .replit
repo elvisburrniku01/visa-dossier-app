@@ -1,0 +1,54 @@
+modules = ["php-8.4", "nginx", "bash", "web"]
+run = "php artisan serve --host 0.0.0.0 --port 5000"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "vendor", "dist"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["php", "artisan", "start"] # You might adjust this based on your production server setup (e.g., managing php-fpm and nginx)
+build = ["composer", "install", "--no-dev", "--optimize-autoloader"] # Running composer install for production
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "composer install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php artisan key:generate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php artisan migrate --force" # --force is used in non-interactive environments
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php artisan serve --host 0.0.0.0 --port 5000"
+waitForPort = 5000
