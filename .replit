@@ -7,8 +7,8 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["php", "artisan", "start"] # You might adjust this based on your production server setup (e.g., managing php-fpm and nginx)
-build = ["composer", "install", "--no-dev", "--optimize-autoloader"] # Running composer install for production
+run = ["php", "artisan", "start"]
+build = ["composer", "install", "--no-dev", "--optimize-autoloader"]
 
 [[ports]]
 localPort = 5000
@@ -42,11 +42,11 @@ args = "composer install"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php artisan key:generate"
+args = "which php && php artisan key:generate"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php artisan migrate --force" # --force is used in non-interactive environments
+args = "php artisan migrate --force"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

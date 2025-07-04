@@ -12,7 +12,10 @@ export default defineConfig({
             refresh: true,
         }),
         react(),
-        tailwindcss(),
+        tailwindcss({
+            // Disable the Oxide engine to avoid native addon loading issues
+            oxide: false,
+        }),
     ],
     esbuild: {
         jsx: 'automatic',
@@ -21,5 +24,9 @@ export default defineConfig({
         alias: {
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
+    },
+    optimizeDeps: {
+        // Exclude problematic native modules from optimization
+        exclude: ['@tailwindcss/oxide-linux-x64-musl'],
     },
 });
